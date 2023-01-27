@@ -19,6 +19,7 @@ namespace Module5HW1
                 .AddLogging(configure => configure.AddConsole())
                 .AddHttpClient()
                 .AddTransient<IInternalHttpClientService, InternalHttpClientService>()
+                .AddTransient<IUserService, UserService>()
                 .AddTransient<App>();
             var provider = serviceCollection.BuildServiceProvider();
             var app = provider.GetService<App>();

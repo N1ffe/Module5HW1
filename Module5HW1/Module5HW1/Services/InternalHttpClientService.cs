@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Module5HW1.Helpers;
 using Module5HW1.Services.Abstractions;
 using Newtonsoft.Json;
 
@@ -11,23 +12,30 @@ namespace Module5HW1.Services
         {
             _clientFactory = clientFactory;
         }
-        public async Task<TResponse> SendAsync<TResponse, TRequest>(string url, HttpMethod method, TRequest? content = null)
-            where TRequest : class
+        public async Task<TResponse> SendAsync<TResponse>(string url, HttpMethod method, object? content = null)
         {
-            var client = _clientFactory.CreateClient();
             var httpMessage = new HttpRequestMessage(method, new Uri(url));
             if (content != null)
             {
                 httpMessage.Content = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
             }
-            var result = await client.SendAsync(httpMessage);
+            HttpResponseMessage result;
+            try
+            {
+                var client = _clientFactory.CreateClient();
+                result = await client.SendAsync(httpMessage);
+            }
+            catch (Exception e)
+            {
+                throw new BusinessException(e.Message);
+            }
+            var resultContent = await result.Content.ReadAsStringAsync();
             if (result.IsSuccessStatusCode)
             {
-                var resultContent = await result.Content.ReadAsStringAsync();
                 var response = JsonConvert.DeserializeObject<TResponse>(resultContent);
                 return response!;
             }
-            return default(TResponse) !;
+            throw new BusinessException($"{(int)result.StatusCode} - {result.StatusCode}", resultContent);
         }
     }
 }
