@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Module5HW1.Dtos;
 using Module5HW1.Helpers;
 using Module5HW1.Services.Abstractions;
 using Newtonsoft.Json;
@@ -52,6 +53,10 @@ namespace Module5HW1.Services
             if (result.IsSuccessStatusCode)
             {
                 var response = JsonConvert.DeserializeObject<TResponse>(resultContent);
+                if (response is ErrorDto error)
+                {
+                    throw new BusinessException($"{(int)result.StatusCode} - {result.StatusCode}", error.Message);
+                }
                 return response!;
             }
             throw new BusinessException($"{(int)result.StatusCode} - {result.StatusCode}", resultContent);

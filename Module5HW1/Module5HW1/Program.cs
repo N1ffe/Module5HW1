@@ -21,6 +21,7 @@ namespace Module5HW1
                 .AddTransient<IInternalHttpClientService, InternalHttpClientService>()
                 .AddTransient<IUserService, UserService>()
                 .AddTransient<IEmployeeService, EmployeeService>()
+                .AddTransient<IAuthenticationService, AuthenticationService>()
                 .AddTransient<App>();
             var provider = serviceCollection.BuildServiceProvider();
             var app = provider.GetService<App>();
