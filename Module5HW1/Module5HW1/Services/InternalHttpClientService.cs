@@ -12,6 +12,25 @@ namespace Module5HW1.Services
         {
             _clientFactory = clientFactory;
         }
+        public async Task SendAsync(string url, HttpMethod method, object? content = null)
+        {
+            var httpMessage = new HttpRequestMessage(method, new Uri(url));
+            if (content != null)
+            {
+                httpMessage.Content = new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json");
+            }
+            HttpResponseMessage result;
+            try
+            {
+                var client = _clientFactory.CreateClient();
+                result = await client.SendAsync(httpMessage);
+            }
+            catch (Exception e)
+            {
+                throw new BusinessException(e.Message);
+            }
+            throw new BusinessException($"{(int)result.StatusCode} - {result.StatusCode}", string.Empty);
+        }
         public async Task<TResponse> SendAsync<TResponse>(string url, HttpMethod method, object? content = null)
         {
             var httpMessage = new HttpRequestMessage(method, new Uri(url));
